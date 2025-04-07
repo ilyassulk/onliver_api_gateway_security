@@ -23,7 +23,7 @@ spring:
           filters:
             - "RewritePath=/room/(.*), /room/$1"
             - "RewritePath=/room, /room"
-            - "RewritePath=/token, /token"
+            - "RewritePath=/token(.*), /token$1"
 
 server:
   port: 8080

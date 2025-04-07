@@ -1,0 +1,80 @@
+name: CI/CD Deployment
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Клонирование репозитория
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # 2. Аутентификация в Docker Hub (для сборки и пуша образов)
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 4. Сборка и пуш образа для isdockero/onliver-api-gateway:latest
+      - name: Build and Push Api Gateway Image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./api_gateway
+          file: ./api_gateway/Dockerfile
+          push: true
+          tags: isdockero/onliver-api-gateway:latest
+
+      # Остановка работающего стека и удаление старого образа
+      - name: Stop running stack and remove old image
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ vars.SERVER_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN  }}
+            echo "Stopping existing stack..."
+            sudo docker stack rm onliver_api_gateway_stack || true
+            echo "Waiting for the stack to stop..."
+
+      # Удаляем существующий deploy на сервере с использованием sudo
+      - name: Remove existing deploy on remote host
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ vars.SERVER_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            echo "Удаляем старый deploy с использованием sudo..."
+            sudo rm -rf deploy
+
+      # Передача файла deploy на удалённый сервер
+      - name: Copy 'deploy' Directory to Server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ vars.SERVER_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          source: 'deploy/*'
+          target: '~/'
+
+      # Подключение по SSH, авторизация в Docker Hub на сервере и деплой нового стека
+      - name: Deploy new stack
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ vars.SERVER_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            echo "Logging in to Docker Hub on remote host..."
+            sudo docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN  }}
+            echo "Deploying new stack..."
+            ls
+            sudo docker stack deploy --detach=true -c ~/deploy/docker-compose.yaml onliver_api_gateway_stack

@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: api_gateway
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+      routes:
+        - id: room_managment
+          uri: http://room-manager:8080
+          predicates:
+            - Path=/room/**
+          filters:
+            - "RewritePath=/room/(.*), /room/$1"
+            - "RewritePath=/room, /room"
+            - "RewritePath=/token, /token"
+
+server:
+  port: 8080
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.jks
+    key-store-password: admin123
+    key-password: admin123
+    key-store-type: JKS
+    key-alias: onliverssl

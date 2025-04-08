@@ -6,7 +6,7 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOriginPatterns: "*"
+            allowedOrigins: "https://onliver.ru"
             allowedMethods:
               - GET
               - POST

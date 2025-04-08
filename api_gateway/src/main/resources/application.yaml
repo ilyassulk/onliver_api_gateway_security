@@ -36,6 +36,21 @@ spring:
           filters:
             - "RewritePath=/token(.*), /token$1"
 
+        - id: livekit_ws_redirect
+          uri: wss://onliver.ru:7880
+          predicates:
+            - Path=/livekit/**
+            - Header=Upgrade, websocket
+          filters:
+            - "RewritePath=/livekit/(.*), /$1"
+            
+        - id: livekit_http_redirect
+          uri: https://onliver.ru:7880
+          predicates:
+            - Path=/livekit/**
+          filters:
+            - "RewritePath=/livekit/(.*), /$1"
+
 server:
   port: 8080
   ssl:

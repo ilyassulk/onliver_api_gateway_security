@@ -37,7 +37,7 @@ spring:
             - "RewritePath=/token(.*), /token$1"
 
         - id: livekit_ws_redirect
-          uri: wss://onliver.ru:7880
+          uri: ws://onliver.ru:7880
           predicates:
             - Path=/livekit/**
             - Header=Upgrade, websocket
@@ -45,14 +45,14 @@ spring:
             - "RewritePath=/livekit/(.*), /$1"
             
         - id: livekit_http_redirect
-          uri: https://onliver.ru:7880
+          uri: http://onliver.ru:7880
           predicates:
             - Path=/livekit/**
           filters:
             - "RewritePath=/livekit/(.*), /$1"
         
         - id: livekit_ws_redirect2
-          uri: wss://onliver.ru:7880
+          uri: ws://onliver.ru:7880
           predicates:
             - Path=/livekit
             - Header=Upgrade, websocket
@@ -60,7 +60,7 @@ spring:
             - "RewritePath=/livekit(.*), /$1"
             
         - id: livekit_http_redirect2
-          uri: https://onliver.ru:7880
+          uri: http://onliver.ru:7880
           predicates:
             - Path=/livekit
           filters:

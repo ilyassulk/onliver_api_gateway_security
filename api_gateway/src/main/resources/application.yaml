@@ -6,7 +6,11 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOrigins: "https://onliver.ru"
+            allowedOrigins: 
+              - "http://localhost:3000"
+              - "http://localhost"
+              - "http://onliver.ru"
+              - "https://onliver.ru"
             allowedMethods:
               - GET
               - POST
@@ -15,6 +19,7 @@ spring:
               - OPTIONS
             allowedHeaders: "*"
             allowCredentials: true
+            maxAge: 3600
       routes:
         - id: room_managment
           uri: http://room-manager:8080

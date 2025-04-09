@@ -32,7 +32,7 @@ spring:
         - id: token_managment
           uri: http://room-manager:8080
           predicates:
-            - Path=/token/**
+            - Path=/token
           filters:
             - "RewritePath=/token(.*), /token$1"
 
@@ -65,6 +65,7 @@ spring:
             - Path=/livekit
           filters:
             - "RewritePath=/livekit(.*), /$1"
+
 
 server:
   port: 8080

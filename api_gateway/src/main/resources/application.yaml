@@ -36,6 +36,13 @@ spring:
           filters:
             - "RewritePath=/token(.*), /token$1"
 
+        - id: token_managment2
+          uri: http://room-manager:8080
+          predicates:
+            - Path=/token/**
+          filters:
+            - "RewritePath=/token(.*), /token$1"
+
         - id: livekit_ws_redirect
           uri: ws://onliver.ru:7880
           predicates:

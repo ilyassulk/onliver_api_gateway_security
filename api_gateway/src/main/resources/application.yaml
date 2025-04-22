@@ -80,6 +80,13 @@ spring:
           filters:
             - 'RewritePath=/api/livekit/webhook/(?<remaining>.*), /${remaining}'
 
+        - id: livekit_wh_2
+          uri: http://onliver.ru:8080
+          predicates:
+            - Path=/api/livekit/webhook
+          filters:
+            - 'RewritePath=/api/livekit/webhook(.*), /$1'
+
 server:
   port: 8080
   ssl:

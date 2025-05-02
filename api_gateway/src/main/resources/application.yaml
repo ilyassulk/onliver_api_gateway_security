@@ -87,6 +87,13 @@ spring:
           filters:
             - 'RewritePath=/api/livekit/webhook(.*), /$1'
 
+        - id: translation_manager
+          uri: http://translation_manager:8080
+          predicates:
+            - Path=/translation/**
+          filters:
+            - "RewritePath=/translation/(.*), /api/translation/$1"
+
 server:
   port: 8080
   ssl:

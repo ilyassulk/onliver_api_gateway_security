@@ -92,7 +92,7 @@ spring:
           predicates:
             - Path=/translation/**
           filters:
-            - "RewritePath=/translation/(.*), /api/translation/$1"
+            - "RewritePath=/translation/(.*), /translation/$1"
 
 server:
   port: 8080

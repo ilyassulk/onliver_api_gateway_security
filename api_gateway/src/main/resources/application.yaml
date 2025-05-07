@@ -94,6 +94,14 @@ spring:
           filters:
             - "RewritePath=/translation/(.*), /translation/$1"
 
+        - id: content_manager
+          uri: http://content-manager:8080
+          predicates:
+            - Path=/content/**
+          filters:
+            - "RewritePath=/content/(.*), /content/$1"
+
+
 server:
   port: 8080
   ssl:

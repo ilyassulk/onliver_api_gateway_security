@@ -101,6 +101,12 @@ spring:
           filters:
             - "RewritePath=/content/(.*), /content/$1"
 
+        - id: content_manager1
+          uri: http://content-manager:8080
+          predicates:
+            - Path=/content
+          filters:
+            - "RewritePath=/content(.*), /content$1"
 
 server:
   port: 8080

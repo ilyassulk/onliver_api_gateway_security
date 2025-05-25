@@ -108,6 +108,13 @@ spring:
           filters:
             - "RewritePath=/content(.*), /content$1"
 
+        - id: wshub_ws_redirect2
+          uri: ws://ws-hub:8080/ws
+          predicates:
+            - Path=/ws
+            - Header=Upgrade, websocket
+          filters:
+            - "RewritePath=/ws(.*), /$1"
 
 
 server:

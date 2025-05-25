@@ -15,8 +15,8 @@ server:
 logging:
   level:
     ru.onliver.ws_hub: DEBUG
-    org.springframework.integration: INFO
-    org.springframework.messaging: INFO
-    org.springframework.web.socket: INFO
+    org.springframework.integration: DEBUG
+    org.springframework.messaging: DEBUG
+    org.springframework.web.socket: DEBUG
 
 

@@ -108,31 +108,26 @@ spring:
           filters:
             - "RewritePath=/content(.*), /content$1"
 
+        # Специфичный маршрут для /ws/info с высшим приоритетом
+        - id: wshub_info
+          uri: http://ws-hub:8080
+          predicates:
+            - Path=/ws/info
+          order: 1
+
         # WebSocket соединения
         - id: wshub_websocket
           uri: ws://ws-hub:8080
           predicates:
-            - Path=/ws,/ws/{segment}/websocket
+            - Path=/ws
             - Header=Upgrade, websocket
-          filters:
-            - PreserveHostHeader
-          order: 1
+          order: 2
 
-        # Все остальные запросы к /ws
+        # Остальные HTTP запросы к /ws
         - id: wshub_http
           uri: http://ws-hub:8080
           predicates:
-            - Path=/ws,/ws/**
-          filters:
-            - AddResponseHeader=Access-Control-Allow-Origin, *
-            - AddResponseHeader=Access-Control-Allow-Credentials, true
-          order: 2
-
-        # Мониторинг
-        - id: wshub_monitoring
-          uri: http://ws-hub:8080
-          predicates:
-            - Path=/status,/ws-test
+            - Path=/ws/**
           order: 3
 
 

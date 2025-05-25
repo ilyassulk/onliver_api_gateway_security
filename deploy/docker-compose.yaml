@@ -14,6 +14,18 @@ services:
       restart_policy:
         condition: any
 
+  ws-hub:
+    image: isdockero/onliver-ws-hub:latest
+    networks:
+      - service-network
+    ports:
+      - target: 8080
+        published: 4444
+        protocol: tcp
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
 
 networks:
   service-network:

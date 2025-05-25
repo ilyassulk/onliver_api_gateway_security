@@ -31,6 +31,14 @@ jobs:
           push: true
           tags: isdockero/onliver-api-gateway:latest
 
+      - name: Build and Push WS Hub Image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./ws_hub
+          file: ./ws_hub/Dockerfile
+          push: true
+          tags: isdockero/onliver-ws-hub:latest
+
       # Остановка работающего стека и удаление старого образа
       - name: Stop running stack and remove old image
         uses: appleboy/ssh-action@v0.1.7

@@ -1,0 +1,22 @@
+spring:
+  application:
+   name: ws_hub
+  kafka:
+    bootstrap-servers:   kafka:9092 #onliver.ru:9999  #
+    consumer:
+      group-id: ${random.uuid}
+    listener:
+      missing-topics-fatal: false
+
+
+server:
+  port: 8080
+
+logging:
+  level:
+    ru.onliver.ws_hub: DEBUG
+    org.springframework.integration: INFO
+    org.springframework.messaging: INFO
+    org.springframework.web.socket: INFO
+
+

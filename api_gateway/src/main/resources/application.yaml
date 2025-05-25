@@ -108,6 +108,8 @@ spring:
           filters:
             - "RewritePath=/content(.*), /content$1"
 
+
+
 server:
   port: 8080
   ssl:

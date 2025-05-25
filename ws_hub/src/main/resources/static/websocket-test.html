@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .message-box { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; margin-bottom: 10px; }
+        .input-area { display: flex; margin-bottom: 10px; }
+        input { flex-grow: 1; padding: 8px; }
+        button { padding: 8px 16px; margin-left: 8px; }
+        .connection-status { margin-bottom: 10px; }
+        .connected { color: green; }
+        .disconnected { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WebSocket Тестирование</h1>
+        
+        <div class="connection-status">
+            Статус: <span id="status" class="disconnected">Отключено</span>
+        </div>
+        
+        <div>
+            <button id="connectButton">Подключиться</button>
+            <button id="disconnectButton" disabled>Отключиться</button>
+        </div>
+        
+        <h2>Отправка сообщений</h2>
+        
+        <div>
+            <h3>Чат</h3>
+            <div class="input-area">
+                <input type="text" id="chatMessage" placeholder="Введите сообщение чата">
+                <button id="sendChatButton" disabled>Отправить в чат</button>
+            </div>
+            
+            <h3>Плейлист</h3>
+            <div class="input-area">
+                <input type="text" id="playlistMessage" placeholder="Введите сообщение для плейлиста">
+                <button id="sendPlaylistButton" disabled>Отправить в плейлист</button>
+            </div>
+        </div>
+        
+        <h2>Полученные сообщения</h2>
+        <div id="messages" class="message-box"></div>
+    </div>
+    
+    <script>
+        let stompClient = null;
+        
+        function connect() {
+            // Создаем SockJS соединение к WebSocket серверу
+            const socket = new SockJS('/ws');
+            
+            // Создаем STOMP клиент поверх SockJS
+            stompClient = Stomp.over(socket);
+            
+            // Подключаемся к серверу
+            stompClient.connect({}, function(frame) {
+                console.log('Connected: ' + frame);
+                document.getElementById('status').textContent = 'Подключено';
+                document.getElementById('status').className = 'connected';
+                
+                // Включаем кнопки
+                document.getElementById('connectButton').disabled = true;
+                document.getElementById('disconnectButton').disabled = false;
+                document.getElementById('sendChatButton').disabled = false;
+                document.getElementById('sendPlaylistButton').disabled = false;
+                
+                // Подписываемся на различные топики
+                stompClient.subscribe('/topic/events', function(message) {
+                    showMessage('Событие', message.body);
+                });
+                
+                stompClient.subscribe('/chat', function(message) {
+                    showMessage('Чат', message.body);
+                });
+                
+                stompClient.subscribe('/playlist', function(message) {
+                    showMessage('Плейлист', message.body);
+                });
+            }, function(error) {
+                console.error('STOMP error: ' + error);
+                document.getElementById('status').textContent = 'Ошибка: ' + error;
+                document.getElementById('status').className = 'disconnected';
+            });
+        }
+        
+        function disconnect() {
+            if (stompClient !== null) {
+                stompClient.disconnect();
+                stompClient = null;
+                
+                // Обновляем UI
+                document.getElementById('status').textContent = 'Отключено';
+                document.getElementById('status').className = 'disconnected';
+                document.getElementById('connectButton').disabled = false;
+                document.getElementById('disconnectButton').disabled = true;
+                document.getElementById('sendChatButton').disabled = true;
+                document.getElementById('sendPlaylistButton').disabled = true;
+                
+                console.log("Disconnected");
+            }
+        }
+        
+        function sendChatMessage() {
+            const messageInput = document.getElementById('chatMessage');
+            const message = {
+                content: messageInput.value
+            };
+            
+            if (stompClient && messageInput.value.trim()) {
+                stompClient.send("/app/chat/send", {}, JSON.stringify(message));
+                showMessage('Отправлено (Чат)', JSON.stringify(message));
+                messageInput.value = '';
+            }
+        }
+        
+        function sendPlaylistMessage() {
+            const messageInput = document.getElementById('playlistMessage');
+            const message = {
+                content: messageInput.value
+            };
+            
+            if (stompClient && messageInput.value.trim()) {
+                stompClient.send("/app/playlist/add", {}, JSON.stringify(message));
+                showMessage('Отправлено (Плейлист)', JSON.stringify(message));
+                messageInput.value = '';
+            }
+        }
+        
+        function showMessage(source, message) {
+            const messageElement = document.createElement('div');
+            messageElement.innerHTML = '<strong>' + source + ':</strong> ' + message;
+            document.getElementById('messages').appendChild(messageElement);
+            // Прокручиваем к последнему сообщению
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+        }
+        
+        // Добавляем обработчики событий
+        document.getElementById('connectButton').addEventListener('click', connect);
+        document.getElementById('disconnectButton').addEventListener('click', disconnect);
+        document.getElementById('sendChatButton').addEventListener('click', sendChatMessage);
+        document.getElementById('sendPlaylistButton').addEventListener('click', sendPlaylistMessage);
+        
+        // Обработка нажатия Enter в полях ввода
+        document.getElementById('chatMessage').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        });
+        
+        document.getElementById('playlistMessage').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendPlaylistMessage();
+            }
+        });
+    </script>
+</body>
+</html> 

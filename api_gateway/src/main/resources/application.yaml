@@ -108,45 +108,32 @@ spring:
           filters:
             - "RewritePath=/content(.*), /content$1"
 
-        # WebSocket соединения - ВЫСОКИЙ ПРИОРИТЕТ
+        # WebSocket соединения
         - id: wshub_websocket
           uri: ws://ws-hub:8080
           predicates:
-            - Path=/ws,/ws/websocket
+            - Path=/ws,/ws/{segment}/websocket
             - Header=Upgrade, websocket
           filters:
             - PreserveHostHeader
           order: 1
 
-        # SockJS WebSocket соединения
-        - id: wshub_sockjs_websocket
-          uri: ws://ws-hub:8080
+        # Все остальные запросы к /ws
+        - id: wshub_http
+          uri: http://ws-hub:8080
           predicates:
-            - Path=/ws/**/websocket
-            - Header=Upgrade, websocket
+            - Path=/ws,/ws/**
           filters:
-            - PreserveHostHeader
+            - AddResponseHeader=Access-Control-Allow-Origin, *
+            - AddResponseHeader=Access-Control-Allow-Credentials, true
           order: 2
 
-        # SockJS Info эндпоинт
-        - id: wshub_sockjs_info
+        # Мониторинг
+        - id: wshub_monitoring
           uri: http://ws-hub:8080
           predicates:
-            - Path=/ws/info
-          filters:
-            - AddResponseHeader=Access-Control-Allow-Origin, *
-            - AddResponseHeader=Access-Control-Allow-Credentials, true
+            - Path=/status,/ws-test
           order: 3
-
-        # Остальные SockJS транспорты
-        - id: wshub_sockjs_transports
-          uri: http://ws-hub:8080
-          predicates:
-            - Path=/ws/**
-          filters:
-            - AddResponseHeader=Access-Control-Allow-Origin, *
-            - AddResponseHeader=Access-Control-Allow-Credentials, true
-          order: 4
 
 
 server:

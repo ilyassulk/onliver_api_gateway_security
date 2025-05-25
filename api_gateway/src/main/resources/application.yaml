@@ -108,22 +108,41 @@ spring:
           filters:
             - "RewritePath=/content(.*), /content$1"
 
-        # Все WebSocket соединения
+        # SockJS Info эндпоинт (критически важен!)
+        - id: wshub_sockjs_info
+          uri: http://ws-hub:8080
+          predicates:
+            - Path=/ws/info
+            - Method=GET,OPTIONS
+          filters:
+            - AddResponseHeader=Access-Control-Allow-Origin, *
+            - AddResponseHeader=Access-Control-Allow-Credentials, true
+            - AddResponseHeader=Access-Control-Allow-Methods, GET,POST,OPTIONS
+            - AddResponseHeader=Access-Control-Allow-Headers, *
+
+        # Основной WebSocket эндпоинт
         - id: wshub_websocket
           uri: ws://ws-hub:8080
           predicates:
             - Path=/ws/**
             - Header=Upgrade, websocket
 
-        # Все HTTP запросы к WebSocket Hub
-        - id: wshub_http
+        # SockJS транспорты
+        - id: wshub_sockjs_transports
           uri: http://ws-hub:8080
           predicates:
-            - Path=/ws/**,/status,/ws-test
+            - Path=/ws/**
           filters:
             - AddResponseHeader=Access-Control-Allow-Origin, *
+            - AddResponseHeader=Access-Control-Allow-Credentials, true
             - AddResponseHeader=Access-Control-Allow-Methods, GET,POST,OPTIONS
             - AddResponseHeader=Access-Control-Allow-Headers, *
+
+        # Мониторинг эндпоинты
+        - id: wshub_monitoring
+          uri: http://ws-hub:8080
+          predicates:
+            - Path=/status,/ws-test
 
 
 server:

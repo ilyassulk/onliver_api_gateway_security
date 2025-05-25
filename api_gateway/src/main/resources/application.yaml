@@ -108,13 +108,22 @@ spring:
           filters:
             - "RewritePath=/content(.*), /content$1"
 
-        - id: wshub_ws_redirect2
-          uri: ws://ws-hub:8080/ws
+        # Все WebSocket соединения
+        - id: wshub_websocket
+          uri: ws://ws-hub:8080
           predicates:
-            - Path=/ws
+            - Path=/ws/**
             - Header=Upgrade, websocket
+
+        # Все HTTP запросы к WebSocket Hub
+        - id: wshub_http
+          uri: http://ws-hub:8080
+          predicates:
+            - Path=/ws/**,/status,/ws-test
           filters:
-            - "RewritePath=/ws(.*), /$1"
+            - AddResponseHeader=Access-Control-Allow-Origin, *
+            - AddResponseHeader=Access-Control-Allow-Methods, GET,POST,OPTIONS
+            - AddResponseHeader=Access-Control-Allow-Headers, *
 
 
 server:

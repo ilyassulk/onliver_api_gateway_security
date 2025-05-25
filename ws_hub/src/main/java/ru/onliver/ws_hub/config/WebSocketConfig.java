@@ -31,13 +31,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // Добавляем эндпоинт с SockJS
+        // CORS обрабатывается на уровне API Gateway
         registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*")
                 .withSockJS();
         
         // Добавляем эндпоинт без SockJS для прямого WebSocket подключения
-        registry.addEndpoint("/ws")
-                .setAllowedOriginPatterns("*");
+        // CORS обрабатывается на уровне API Gateway
+        registry.addEndpoint("/ws");
     }
 
     @Override
